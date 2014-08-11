@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-list/core-list.html">
 <link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../bower_components/aha-table/dist/aha-table.html">
 <link rel="import" href="drag-drop-el.html">
 <script src="../bower_components/fast-json-patch/src/json-patch-duplex.js"></script>
 
@@ -11,17 +12,24 @@
       params='{{ send }}'
       handleAs="json"
       method="{{ type }}"
+      body="{{ body }}"
       on-core-response="{{ handleResponse }}"></core-ajax>
-    <ul>
+    <!-- <textarea>{{ data }}</textarea> -->
+<!--     <ul>
       <template repeat="{{ item in data }}">
         <li is="drag-drop-el">{{ item|stringify }}</li>
       </template>
-    </ul>
-    <core-list data="{{data}}" height="80" sync="true">
+    </ul>-->
+<!--     <core-list data="{{data}}" height="80">
       <template>
         <li is="drag-drop-el" on-droped="{{ handleDrop }}">{{ name }} {{ _id }}</li>
+        <input type="text" value="{{ name }}">
       </template>
-    </core-list>
+    </core-list>  -->
+    <template id="list" repeat="{{ data }}">
+      <input type="text" value="{{ name }}">
+    </template>
+    <!-- <aha-table id="table" data="{{ data }}"></aha-table> -->
   </template>
   <script>
     Polymer({
@@ -38,22 +46,46 @@
        * 
        * @attribute data
        * @type object
-       * @default ''
+       * @default null
        */
-      data: '',
+      data: null,
       type: 'GET',
       ready: function() {
         this.$.request.go();
       },
+      created: function() {
+        // Object.observe(this.data, this.dataChanged.bind(this));
+      },
       handleResponse: function(e, d, el) {
         console.log(e, d, el);
-        this.data = d.response;
+        if (this.type === 'GET') {
+          this.data = d.response;
+          this.dataObs = jsonpatch.observe(this.data);
+        }
+        // this.$.table.data = this.data;
       },
       stringify: function(value) {
         return JSON.stringify(value);
       },
       handleDrop: function(e, d, el) {
         console.log(e, d, el);
+      },
+      dataChanged: function(oldValue, newValue) {
+        this.data.forEach(function(item) {
+          Object.observe(item, this.sendData.bind(this));
+        }, this);
+        console.log('atatat');
+        console.log(oldValue, newValue);
+      },
+      dataMapChanged: function(one, two) {
+        console.log('map', one[0]);
+      },
+      sendData: function() {
+        var patches = jsonpatch.generate(this.dataObs);
+        console.log(patches);
+        this.type = 'POST';
+        this.body = JSON.stringify(this.data);
+        this.$.request.go();
       }
     });
   </script>
