@@ -1,0 +1,60 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-list/core-list.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="drag-drop-el.html">
+<script src="../bower_components/fast-json-patch/src/json-patch-duplex.js"></script>
+
+<polymer-element name="sync-data" attributes="url data">
+  <template>
+    <core-ajax id="request"
+      url="{{ url }}"
+      params='{{ send }}'
+      handleAs="json"
+      method="{{ type }}"
+      on-core-response="{{ handleResponse }}"></core-ajax>
+    <ul>
+      <template repeat="{{ item in data }}">
+        <li is="drag-drop-el">{{ item|stringify }}</li>
+      </template>
+    </ul>
+    <core-list data="{{data}}" height="80" sync="true">
+      <template>
+        <li is="drag-drop-el" on-droped="{{ handleDrop }}">{{ name }} {{ _id }}</li>
+      </template>
+    </core-list>
+  </template>
+  <script>
+    Polymer({
+      /**
+       * The URL target of the request.
+       * 
+       * @attribute url
+       * @type string
+       * @default ''
+       */
+      url: '',
+      /**
+       * The URL target of the request.
+       * 
+       * @attribute data
+       * @type object
+       * @default ''
+       */
+      data: '',
+      type: 'GET',
+      ready: function() {
+        this.$.request.go();
+      },
+      handleResponse: function(e, d, el) {
+        console.log(e, d, el);
+        this.data = d.response;
+      },
+      stringify: function(value) {
+        return JSON.stringify(value);
+      },
+      handleDrop: function(e, d, el) {
+        console.log(e, d, el);
+      }
+    });
+  </script>
+</polymer-element>

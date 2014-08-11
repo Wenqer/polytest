@@ -1,0 +1,12 @@
+{
+  "name": "polytest",
+  "version": "0.0.0",
+  "dependencies": {
+    "core-elements": "Polymer/core-elements#~0.3.3",
+    "paper-elements": "Polymer/paper-elements#~0.3.3",
+    "polymer": "Polymer/polymer#~0.3.3",
+    "moment": "~2.8.0",
+    "moment-range": "~1.0.2"
+  },
+  "devDependencies": {}
+}
