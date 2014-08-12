@@ -1,11 +1,11 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/core-list/core-list.html">
+<!-- <link rel="import" href="../bower_components/core-list/core-list.html"> -->
 <link rel="import" href="../bower_components/core-ajax/core-ajax.html">
-<link rel="import" href="../bower_components/aha-table/dist/aha-table.html">
-<link rel="import" href="drag-drop-el.html">
+<!-- <link rel="import" href="../bower_components/aha-table/dist/aha-table.html"> -->
+<!-- <link rel="import" href="drag-drop-el.html"> -->
 <script src="../bower_components/fast-json-patch/src/json-patch-duplex.js"></script>
 
-<polymer-element name="sync-data" attributes="url data">
+<polymer-element name="sync-data" attributes="url data delay">
   <template>
     <core-ajax id="request"
       url="{{ url }}"
@@ -26,10 +26,10 @@
         <input type="text" value="{{ name }}">
       </template>
     </core-list>  -->
-    <template id="list" repeat="{{ data }}">
+<!--     <template id="list" repeat="{{ data }}">
       <input type="text" value="{{ name }}">
-    </template>
-    <!-- <aha-table id="table" data="{{ data }}"></aha-table> -->
+    </template> -->
+    <!-- <aha-table id="table"></aha-table> -->
   </template>
   <script>
     Polymer({
@@ -42,51 +42,74 @@
        */
       url: '',
       /**
-       * The URL target of the request.
+       * The handled data.
        * 
        * @attribute data
        * @type object
        * @default null
        */
       data: null,
+      /**
+       * The delay before data send.
+       * 
+       * @attribute delay
+       * @type number
+       * @default 1000
+       */
+      delay: 1000,
       type: 'GET',
       ready: function() {
         this.$.request.go();
       },
       created: function() {
-        // Object.observe(this.data, this.dataChanged.bind(this));
+      //   // Object.observe(this.data, this.dataChanged.bind(this));
+        this.processData = this.debounce(this.sendData, this.delay)
       },
       handleResponse: function(e, d, el) {
-        console.log(e, d, el);
+        // console.log(e, d, el);
         if (this.type === 'GET') {
           this.data = d.response;
           this.dataObs = jsonpatch.observe(this.data);
+          // this.$.table.data = this.data;
         }
-        // this.$.table.data = this.data;
       },
-      stringify: function(value) {
-        return JSON.stringify(value);
-      },
-      handleDrop: function(e, d, el) {
-        console.log(e, d, el);
-      },
+      // stringify: function(value) {
+      //   return JSON.stringify(value);
+      // },
+      // handleDrop: function(e, d, el) {
+      //   console.log(e, d, el);
+      // },
       dataChanged: function(oldValue, newValue) {
         this.data.forEach(function(item) {
-          Object.observe(item, this.sendData.bind(this));
+          Object.observe(item, this.processData.bind(this));
         }, this);
-        console.log('atatat');
-        console.log(oldValue, newValue);
+        this.processData();
+        // console.log('atatat');
+        // console.log(oldValue, newValue);
       },
-      dataMapChanged: function(one, two) {
-        console.log('map', one[0]);
-      },
+      // dataMapChanged: function(one, two) {
+      //   console.log('map', one[0]);
+      // },
       sendData: function() {
         var patches = jsonpatch.generate(this.dataObs);
         console.log(patches);
-        this.type = 'POST';
-        this.body = JSON.stringify(this.data);
+        this.type = 'PATCH';
+        this.body = JSON.stringify(patches);
+        this.$.request.handleAs = 'text';
         this.$.request.go();
-      }
+      },
+      debounce: function(func, wait, immediate) {
+        var timeout;
+        return function() {
+          var context = this, args = arguments;
+          clearTimeout(timeout);
+          timeout = setTimeout(function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          }, wait);
+          if (immediate && !timeout) func.apply(context, args);
+        };
+      },
     });
   </script>
 </polymer-element>

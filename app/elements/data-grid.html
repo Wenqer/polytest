@@ -1,0 +1,24 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/aha-table/dist/aha-table.html">
+<link rel="import" href="sync-data.html">
+
+<polymer-element name="data-grid" attributes="data url">
+  <template>
+    <link rel="stylesheet" href="../styles/data-grid.css">
+
+    <sync-data url="{{ url }}" data="{{ data }}" delay="1000"></sync-data>
+    <aha-table id="table" selectable
+    searchable
+    copyable
+    removable content>
+    </aha-table>
+  </template>
+  <script>
+    Polymer({
+      data: null,
+      dataChanged: function() {
+        this.$.table.data = this.data;
+      }
+    });
+  </script>
+</polymer-element>

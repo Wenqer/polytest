@@ -12,13 +12,10 @@
   <!-- build:css styles/main.css -->
   <link rel="stylesheet" href="styles/main.css">
   <!-- endbuild-->
-  <script src="bower_components/sinon/lib/sinon.js"></script>
-  <script src="bower_components/sinon/lib/sinon/util/event.js"></script>
-  <script src="bower_components/sinon/lib/sinon/util/fake_xml_http_request.js"></script>
-  <script src="bower_components/sinon/lib/sinon/util/fake_server.js"></script>
-  <script src="scripts/server.js"></script>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
 
   <script src="bower_components/platform/platform.js"></script>
+
   <!-- build:vulcanized elements/elements.vulcanized.html -->
   <link rel="import" href="elements/elements.html">
   <!-- endbuild-->
@@ -33,7 +30,21 @@
     <my-calendar format="DD-MM-YY" date=""></my-calendar>
   </div> -->
     <!-- <my-calendar flex self-center format="DD-MM-YY" date=""></my-calendar> -->
-    <sync-data url="http://localhost:3100/save-reminds" data="{{ data }}"></sync-data>
+    <!-- <sync-data url="http://localhost:3100/save-reminds" data="{{ data }}"></sync-data> -->
+    <data-grid id="grid" url="http://localhost:3100/save-reminds">
+      <aha-column name="name" 
+      type="string" 
+
+      sortable
+      searchable
+      editable
+      required
+
+      searchplaceholder="Type to filter title"
+      placeholder="Evenet Title" 
+      default="" 
+      hint="Meaningful title will help you remember"></aha-column>
+    </data-grid>
 
   <!-- build:js scripts/app.js -->
   <script src="scripts/app.js"></script>
